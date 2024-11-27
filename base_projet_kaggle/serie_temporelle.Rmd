@@ -1,0 +1,134 @@
+---
+title: "Serie_temporelle"
+author: "Borice DOSSOU"
+date: "2024-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(forecast)
+library(TSstudio)
+library(prophet)# modèle de prévision Prophet Facebook
+library(lubridate)
+library(ggplot2) # Visualisation statique
+library(plotly) 
+```
+
+
+
+```{r}
+Y_train<-read.csv("y_train.csv",sep=",",header=T) %>% 
+  mutate(DELIVERY_START = as.POSIXct(DELIVERY_START, tz = "CET")) %>% 
+  arrange(DELIVERY_START)
+```
+
+
+```{r}
+str(Y_train)
+```
+
+```{r}
+summary(Y_train)
+```
+
+```{r}
+# Identifiez les valeurs manquantes
+any(is.na(Y_train$DELIVERY_START))
+```
+
+
+```{r}
+library(xts)
+
+# Créer un objet xts
+xts_data <- xts(Y_train$spot_id_delta, order.by = Y_train$DELIVERY_START)
+
+# Visualisation
+plot(xts_data, main = "Spot ID Delta Over Time", xlab = "Date", ylab = "Spot ID Delta")
+
+```
+
+
+
+
+```{r}
+library(tseries)
+adf.test(xts_data)
+```
+
+
+```{r}
+# Diviser la série temporelle
+train_size <- floor(0.7 * length(xts_data))  # 70% pour l'entraînement
+test_size_1 <- floor(0.15 * length(xts_data))  # 15% pour le premier test
+test_size_2 <- length(xts_data) - train_size - test_size_1  # 15% pour le deuxième test
+
+train_data <- xts_data[1:train_size]
+test_data_1 <- xts_data[(train_size + 1):(train_size + test_size_1)]
+test_data_2 <- xts_data[(train_size + test_size_1 + 1):length(xts_data)]
+
+```
+
+
+```{r}
+# Visualiser l'ACF et PACF
+pacf(train_data, main="PACF of Train Data")
+acf(train_data, main="ACF of Train Data")
+
+```
+
+
+```{r}
+# Ajuster un modèle ARIMA sur les données d'entraînement
+library(forecast)
+model <- auto.arima(train_data,stepwise = FALSE, approximation = FALSE)
+summary(model)
+
+```
+
+```{r}
+# Ajuster un modèle ARIMA avec p=6666 et q=17000
+model_e <- arima(train_data, order=c(3,0 , 3),include.mean = F)
+
+# Résumé du modèle
+summary(model_e)
+```
+
+
+En analysant les coefficients et leurs erreurs standards (se), les deux modèles semblent bien ajustés avec des coefficients significatifs, mais ARIMA(3,0,3) a une meilleure capacité à réduire l'autocorrélation résiduelle, ce qui peut le rendre plus robuste.
+
+Conclusion :
+ARIMA(3,0,3) semble être légèrement meilleur d'un point de vue statistique, car il a un AIC plus bas et une meilleure ACF1, ce qui indique que les résidus sont mieux capturés.
+
+Cependant, la différence est marginale. Vous pouvez procéder avec ARIMA(3,0,3), tout en vérifiant ses performances sur l'ensemble de test pour valider la sélection du modèle
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+predictions <- forecast(model, h = length(test_data_1_xts))
+# Création d'un index temporel pour les prévisions (suivant l'heure de la dernière observation dans test_data_1)
+forecast_index <- seq(from = index(test_data_1)[length(test_data_1)] + 1, 
+                      by = "hour", length.out = length(predictions$mean))
+
+# Créer un xts pour les prévisions avec le bon index
+forecast_xts <- xts(predictions$mean, order.by = forecast_index)
+
+# Tracer les prévisions et les données réelles
+plot(forecast_xts, main = "Prévisions ARIMA pour test_data_1", xlim = range(index(test_data_1), index(forecast_xts)))
+lines(test_data_1, col = "red")  # Tracer les données réelles en rouge
+legend("topright", legend = c("Prévisions", "Réel"), col = c("blue", "red"), lty = 1)
+
+```
+

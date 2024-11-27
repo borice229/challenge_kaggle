@@ -1,0 +1,8 @@
+"0","library(xts)"
+"0",""
+"0","# Créer un objet xts"
+"0","xts_data <- xts(Y_train$spot_id_delta, order.by = Y_train$DELIVERY_START)"
+"0",""
+"0","# Visualisation"
+"0","plot(xts_data, main = ""Spot ID Delta Over Time"", xlab = ""Date"", ylab = ""Spot ID Delta"")"
+"0",""

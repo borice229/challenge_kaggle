@@ -1,0 +1,16 @@
+TLU
+Perceptron
+l'entropie croisée et les pertes logistiques  et  la descente de gradient
+la descente de gradient
+Descente de gradient stochast
+
+Pourquoi la descente de gradient stochastique est-elle toujours une bonne 
+réseau de feedforward
+backpropagation.
+the derivatives in forward
+mode
+
+
+
+
+

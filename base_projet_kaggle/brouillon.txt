@@ -1,0 +1,5 @@
+Le nombre de couches dans un réseau neuronal
+
+Le nombre d’itérations de formation ;
+
+Conditions de régularisation

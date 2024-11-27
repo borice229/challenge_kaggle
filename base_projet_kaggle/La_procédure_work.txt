@@ -1,0 +1,49 @@
+https://github.com/JosueAfouda/Analyse-quantitative/blob/master/Prediction%20du%20prix%20des%20actions.ipynb
+
+https://challengedata.ens.fr/participants/challenges/140/
+
+https://github.com/LeCoinStat/100JoursDeML/blob/main/03_Preprocessing/Missing_Data_Treatment.ipynb
+
+df.shape
+df.info()
+df['datestamp'] = pd.to_datetime(df['datestamp'])
+# Colonne datestamp en tant que indices de lignes
+
+df.set_index('datestamp', inplace = True)
+
+df.head()
+
+df.isna().sum()
+Il n'y a pas de valeurs manquantes dans l'ensemble de données. Vous pouvez donc commencer l'analyse exploratoire.
+
+# Résumé statistique
+
+df.describe()
+
+
+visualisation des valeurs manquantes
+msno.bar(df)
+plt.show()
+msno.matrix(df)
+plt.show()
+
+#voir la correlation entre les valeurs manquantes
+msno.heatmap(df)
+plt.show()
+
+msno.dendogram(df)
+plt.show()
+
+# On peut pas faire d'imputation à un taux de valeurs manquantes supérieur à 30
+
+
+sns.heatmap(df.isnull(),yticklabels=False, cbar=False,cmap='viridis')
+
+# Poser la question pour avons nous ces valeurs manquantes
+fautes du système
+
+# supprimer les ligne à valeur manquante
+df.dropna(how='any').shape
+df.dropna(subset=['Age'],how='any').shape
+
+df['Age'].fillna(df['Age'].median(),inplace=TRUE)

@@ -1,0 +1,6 @@
+"0","# Identifiez les valeurs manquantes"
+"0","any(is.na(Y_train$DELIVERY_START))"
+"1","[1]"
+"1"," FALSE"
+"1","
+"
